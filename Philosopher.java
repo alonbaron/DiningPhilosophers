@@ -15,6 +15,8 @@ public class Philosopher {
     private int eatingCount;
     private Fork fork1;
     private Fork fork2;
+    private Fork firstFork;
+    private Fork secondFork;
 
     public Philosopher (String name, Fork fork1, Fork fork2) {
         this.name = name;
@@ -22,33 +24,39 @@ public class Philosopher {
         this.eatingCount = 0;
         this.fork1 = fork1;
         this.fork2 = fork2;
+        if (fork1.getNumber() < fork2.getNumber()) {
+            this.firstFork  = fork1;
+            this.secondFork = fork2;
+        } else {
+            this.firstFork  = fork2;
+            this.secondFork = fork1;
+        }
         this.start();
     }
 
 
-    private void start () {
+    private void start() {
         new Thread(() -> {
-            Random random = new Random();
+            Random rnd = new Random();
             while (true) {
-                Utils.sleep(random.nextInt(5000));
-                this.status = WAITING_FOR_FORK_1;
-                while (this.fork1.getHeldBy() != null) {
+                status = THINKING;
+                Utils.sleep(rnd.nextInt(5000));
+                status = WAITING_FOR_FORK_1;
+                while (firstFork.getHeldBy() != null) {
                     Utils.sleep(100);
                 }
-                this.fork1.setHeldBy(this);
-                Utils.sleep(random.nextInt(2000));
-                this.status = WAITING_FOR_FORK_2;
-                while (this.fork2.getHeldBy() != null) {
+                firstFork.setHeldBy(this);
+                Utils.sleep(rnd.nextInt(2000));
+                status = WAITING_FOR_FORK_2;
+                while (secondFork.getHeldBy() != null) {
                     Utils.sleep(100);
                 }
-                this.fork2.setHeldBy(this);
-                this.status = EATING;
-                Utils.sleep(random.nextInt(5000));
-                this.fork1.setHeldBy(null);
-                this.fork2.setHeldBy(null);
-                this.eatingCount++;
-                this.status = THINKING;
-
+                secondFork.setHeldBy(this);
+                status = EATING;
+                Utils.sleep(rnd.nextInt(5000));
+                firstFork.setHeldBy(null);
+                secondFork.setHeldBy(null);
+                eatingCount++;
             }
         }).start();
     }
@@ -57,7 +65,15 @@ public class Philosopher {
         return this.name;
     }
 
+    public int getEatingCount() {return this.eatingCount;}
+
     public String toString () {
+
+        return new SimpleDateFormat("HH:mm:ss").format(new Date()) + " Philosopher " + this.name + " is currently " + getStatusText()
+                + " (total times he ate: " + this.eatingCount + ")";
+
+    }
+    public String getStatusText(){
         String statusText = switch (this.status) {
             case THINKING ->  "thinking ";
             case WAITING_FOR_FORK_1 ->  "waiting for fork " + this.fork1.getNumber();
@@ -65,8 +81,10 @@ public class Philosopher {
             case EATING -> "eating ";
             default -> "";
         };
-        return new SimpleDateFormat("HH:mm:ss").format(new Date()) + " Philosopher " + this.name + " is currently " + statusText
-                + " (total times he ate: " + this.eatingCount + ")";
+        return statusText;
+    }
 
+    public int getStatus() {
+        return status;
     }
 }
