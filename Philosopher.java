@@ -17,6 +17,11 @@ public class Philosopher {
     private Fork fork2;
     private Fork firstFork;
     private Fork secondFork;
+    private volatile boolean isRunning = true;
+
+    public void stop() {
+        isRunning = false;
+    }
 
     public Philosopher (String name, Fork fork1, Fork fork2) {
         this.name = name;
@@ -38,18 +43,23 @@ public class Philosopher {
     private void start() {
         new Thread(() -> {
             Random rnd = new Random();
-            while (true) {
+            while (isRunning) {
                 status = THINKING;
                 Utils.sleep(rnd.nextInt(5000));
                 status = WAITING_FOR_FORK_1;
-                while (firstFork.getHeldBy() != null) {
+                while (isRunning && firstFork.getHeldBy() != null) {
                     Utils.sleep(100);
                 }
+                if (!isRunning) break;
                 firstFork.setHeldBy(this);
                 Utils.sleep(rnd.nextInt(2000));
                 status = WAITING_FOR_FORK_2;
-                while (secondFork.getHeldBy() != null) {
+                while (isRunning && secondFork.getHeldBy() != null) {
                     Utils.sleep(100);
+                }
+                if (!isRunning) {
+                    firstFork.setHeldBy(null);
+                    break;
                 }
                 secondFork.setHeldBy(this);
                 status = EATING;
@@ -59,6 +69,7 @@ public class Philosopher {
                 eatingCount++;
             }
         }).start();
+
     }
 
     public String getName () {
@@ -66,6 +77,9 @@ public class Philosopher {
     }
 
     public int getEatingCount() {return this.eatingCount;}
+    public boolean isStopped() {
+        return !isRunning;
+    }
 
     public String toString () {
 

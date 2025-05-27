@@ -37,7 +37,7 @@ public class Fork {
     public String toString () {
         if (this.heldBy == null) {
             return "Fork " + this.number
-                     + " is not currently held by anyone";
+                    + " is not currently held by anyone";
 
         } else {
             return "Fork " + this.number +
