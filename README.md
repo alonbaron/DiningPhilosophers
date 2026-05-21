@@ -85,7 +85,7 @@ javac *.java
 java Main
 ```
 
-Or open `DiningPhilosophersProblem.iml` in IntelliJ and run `Main`.
+Or open `DiningPhilosophers.iml` in IntelliJ and run `Main`.
 
 You should see five philosophers around a round table, each cycling through `thinking → waiting for fork → eating`. Labels turn red while eating. The **Stop Philosopher** button kills one philosopher at random — the others keep running.
 
@@ -104,4 +104,4 @@ You should see five philosophers around a round table, each cycling through `thi
 
 ## 📝 License
 
-Educational project — no license. Fork freely for your own learning.
+MIT License. See [LICENSE](LICENSE).
