@@ -3,6 +3,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Fork {
     private int number;
@@ -10,6 +11,15 @@ public class Fork {
     private int x;
     private int y;
     private Image image;
+    private final ReentrantLock lock = new ReentrantLock();
+
+    public boolean tryAcquire() {
+        return lock.tryLock();
+    }
+
+    public void release() {
+        lock.unlock();
+    }
 
 
 

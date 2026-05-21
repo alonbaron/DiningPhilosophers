@@ -45,18 +45,19 @@ public class Philosopher {
                 status = THINKING;
                 Utils.sleep(rnd.nextInt(5000));
                 status = WAITING_FOR_FORK_1;
-                while (isRunning && firstFork.getHeldBy() != null) {
+                while (isRunning && !firstFork.tryAcquire()) {
                     Utils.sleep(100);
                 }
                 if (!isRunning) break;
                 firstFork.setHeldBy(this);
                 Utils.sleep(rnd.nextInt(2000));
                 status = WAITING_FOR_FORK_2;
-                while (isRunning && secondFork.getHeldBy() != null) {
+                while (isRunning && !secondFork.tryAcquire()) {
                     Utils.sleep(100);
                 }
                 if (!isRunning) {
                     firstFork.setHeldBy(null);
+                    firstFork.release();
                     break;
                 }
                 secondFork.setHeldBy(this);
@@ -65,6 +66,8 @@ public class Philosopher {
                 firstFork.setHeldBy(null);
                 secondFork.setHeldBy(null);
                 eatingCount++;
+                secondFork.release();
+                firstFork.release();
             }
         }).start();
 
