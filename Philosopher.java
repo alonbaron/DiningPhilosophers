@@ -44,23 +44,46 @@ public class Philosopher {
             while (isRunning) {
                 status = THINKING;
                 Utils.sleep(rnd.nextInt(5000));
+
+                // ---- Acquire firstFork (lower-numbered) ----
                 status = WAITING_FOR_FORK_1;
-                while (isRunning && !firstFork.tryAcquire()) {
-                    Utils.sleep(100);
-                }
-                if (!isRunning) break;
-                firstFork.setHeldBy(this);
-                Utils.sleep(rnd.nextInt(2000));
-                status = WAITING_FOR_FORK_2;
-                while (isRunning && !secondFork.tryAcquire()) {
+                boolean gotFirst = false;
+                while (isRunning) {
+                    if (firstFork.tryAcquire()) {
+                        gotFirst = true;
+                        break;
+                    }
                     Utils.sleep(100);
                 }
                 if (!isRunning) {
+                    if (gotFirst) firstFork.release();
+                    break;
+                }
+                firstFork.setHeldBy(this);
+
+                Utils.sleep(rnd.nextInt(2000));
+
+                // ---- Acquire secondFork (higher-numbered) ----
+                status = WAITING_FOR_FORK_2;
+                boolean gotSecond = false;
+                while (isRunning) {
+                    if (secondFork.tryAcquire()) {
+                        gotSecond = true;
+                        break;
+                    }
+                    Utils.sleep(100);
+                }
+                if (!isRunning) {
+                    if (gotSecond) {
+                        secondFork.setHeldBy(null);
+                        secondFork.release();
+                    }
                     firstFork.setHeldBy(null);
                     firstFork.release();
                     break;
                 }
                 secondFork.setHeldBy(this);
+
                 status = EATING;
                 Utils.sleep(rnd.nextInt(5000));
                 firstFork.setHeldBy(null);
