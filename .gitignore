@@ -1,3 +1,7 @@
 # Build outputs
 *.class
 out/
+
+# IDE files
+.idea/
+*.iml
